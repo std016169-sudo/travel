@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chiang Rai SmartTrip – วางแผนเที่ยวเชียงรายตามเวลาจริง</title>
+  <meta name="description" content="จัดทริปเที่ยวเชียงราย 1 วันให้คุ้มค่า คำนวณเวลาเดินทางด้วย Matrix จริง ปรับตามสภาพอากาศและเวลาเปิด-ปิด">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <div class="logo-group">
+        <div class="logo-icon">CR</div>
+        <div class="logo-text">
+          <h1>Chiang Rai SmartTrip</h1>
+          <span>AI-Powered Local Tourism Planner</span>
+        </div>
+      </div>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="#home" class="active">หน้าแรก</a></li>
+          <li><a href="#planner">จัดทริป</a></li>
+          <li><a href="#features">จุดเด่นระบบ</a></li>
+          <li><a href="#dataset-info">ข้อมูลอ้างอิง</a></li>
+          <li><button type="button" class="btn-tool" id="btn-open-dataset-modal">ตรวจสอบ Dataset</button></li>
+          <li><span class="badge-tag">ADT InnoFest 2026</span></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero" id="home">
+    <div class="container hero-content">
+      <div class="hero-left">
+        <div class="hero-pill">
+          <span>Live Optimization</span>
+          <span>• 100% Offline Ready</span>
+        </div>
+        <h2>จัดทริปเชียงราย 1 วัน <span>แม่นยำ คุ้มค่า</span> ตามเวลาจริง</h2>
+        <p>
+          ระบบจัดลำดับเส้นทาง เริ่มจากหอนาฬิกาเชียงราย (F) คำนวณเวลาเดินทางด้วย Travel Time Matrix จริง หลบฝนในร่มอัตโนมัติ และคุมงบประมาณไม่ให้บานปลาย
+        </p>
+        <div class="hero-actions">
+          <a href="#planner" class="btn-primary">
+            <span>เริ่มจัดทริปของคุณ</span>
+          </a>
+          <button type="button" class="btn-secondary" id="btn-quick-demo">
+            สุ่มตัวอย่างแนะนำ
+          </button>
+        </div>
+      </div>
+      <div class="hero-right">
+        <div class="hero-stats">
+          <div class="stat-item">
+            <div class="stat-num" id="stat-attractions-count">10</div>
+            <div class="stat-lbl">สถานที่ในเชียงราย</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num">100%</div>
+            <div class="stat-lbl">ใช้ Matrix จริง</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num">&lt; 5ms</div>
+            <div class="stat-lbl">คำนวณฉับไว</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Planner & Dashboard Section -->
+  <section class="planner-section" id="planner">
+    <div class="container planner-grid">
+      
+      <!-- Left Column: Input Form -->
+      <aside class="form-card">
+        <div class="form-header">
+          <h3>ตั้งค่าการเดินทาง</h3>
+          <p>เลือกความสนใจและเวลาเพื่อให้อัลกอริทึมจัดเส้นทางที่ดีที่สุด</p>
+        </div>
+
+        <!-- Demo Presets -->
+        <div class="presets-box">
+          <div class="presets-label">
+            <span>ทริปตัวอย่าง (Presets)</span>
+          </div>
+          <div class="preset-btns">
+            <button type="button" class="preset-btn" data-preset="nature">
+              <span>ธรรมชาติและไร่ชา</span>
+            </button>
+            <button type="button" class="preset-btn" data-preset="rainy">
+              <span>หลบฝนในร่ม</span>
+            </button>
+            <button type="button" class="preset-btn" data-preset="lowbudget">
+              <span>สายประหยัด (฿50)</span>
+            </button>
+            <button type="button" class="preset-btn" data-preset="food">
+              <span>อาหารยามเย็น</span>
+            </button>
+          </div>
+        </div>
+
+        <form id="trip-form" novalidate>
+          
+          <!-- Interests -->
+          <div class="form-group">
+            <label class="form-label">ความสนใจ (เลือกได้มากกว่า 1 หมวด) *</label>
+            <div class="category-pills">
+              <label class="cat-label" id="lbl-cat-nature">
+                <input type="checkbox" name="interest" value="nature" checked>
+                <span>Nature (ธรรมชาติ)</span>
+              </label>
+              <label class="cat-label" id="lbl-cat-culture">
+                <input type="checkbox" name="interest" value="culture">
+                <span>Culture (วัฒนธรรม)</span>
+              </label>
+              <label class="cat-label" id="lbl-cat-art">
+                <input type="checkbox" name="interest" value="art">
+                <span>Art (ศิลปะ)</span>
+              </label>
+              <label class="cat-label" id="lbl-cat-food">
+                <input type="checkbox" name="interest" value="food">
+                <span>Food (อาหาร)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Budget per Person -->
+          <div class="form-group">
+            <label class="form-label" for="input-budget">
+              งบประมาณต่อคน (บาท) * <small>(เฉพาะค่าเข้าชม)</small>
+            </label>
+            <div class="input-wrap">
+              <span class="input-icon">฿</span>
+              <input type="number" id="input-budget" class="form-control" min="0" step="10" value="500" placeholder="เช่น 500">
+            </div>
+          </div>
+
+          <!-- Duration -->
+          <div class="form-group">
+            <label class="form-label" for="input-duration-hours">
+              ระยะเวลาท่องเที่ยว *
+            </label>
+            <div class="form-row">
+              <div class="input-wrap">
+                <span class="input-icon" style="font-size: 11px;">ชม.</span>
+                <input type="number" id="input-duration-hours" class="form-control" min="1" max="24" value="6" placeholder="ชั่วโมง">
+              </div>
+              <div class="input-wrap">
+                <span class="input-icon" style="font-size: 11px;">น.</span>
+                <select id="input-duration-minutes" class="form-control">
+                  <option value="0" selected>0 นาที</option>
+                  <option value="15">15 นาที</option>
+                  <option value="30">30 นาที</option>
+                  <option value="45">45 นาที</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Start Time & Travelers -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="input-start-time">เวลาเริ่มเดินทาง *</label>
+              <div class="input-wrap">
+                <span class="input-icon" style="font-size: 11px;">เริ่ม</span>
+                <input type="time" id="input-start-time" class="form-control" value="09:00">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="input-travelers">ผู้เดินทาง (คน) *</label>
+              <div class="input-wrap">
+                <span class="input-icon" style="font-size: 11px;">คน</span>
+                <input type="number" id="input-travelers" class="form-control" min="1" max="50" step="1" value="2">
+              </div>
+            </div>
+          </div>
+
+          <!-- Weather Condition -->
+          <div class="form-group">
+            <label class="form-label">สภาพอากาศ (Weather) *</label>
+            <div class="weather-toggle">
+              <button type="button" class="weather-btn active" id="btn-weather-normal" data-weather="Normal">
+                ฟ้าโปร่ง (Normal)
+              </button>
+              <button type="button" class="weather-btn" id="btn-weather-rain" data-weather="Rain">
+                ฝนตก (Rain - ในร่ม)
+              </button>
+            </div>
+            <input type="hidden" id="input-weather" value="Normal">
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="form-actions">
+            <button type="submit" class="btn-generate" id="btn-submit">
+              <span>สร้างแผนการเดินทาง</span>
+            </button>
+            <button type="button" class="btn-reset" id="btn-reset-form">
+              รีเซ็ตข้อมูล
+            </button>
+          </div>
+
+          <!-- Validation Alert Box -->
+          <div class="validation-box" id="validation-box">
+            <strong>กรุณาตรวจสอบข้อมูล:</strong>
+            <ul id="validation-errors-list"></ul>
+          </div>
+
+        </form>
+      </aside>
+
+      <!-- Right Column: Result Dashboard -->
+      <main class="dashboard-area" id="dashboard-results">
+
+        <!-- Dynamic Trip Comparison Diff Banner -->
+        <div class="comparison-card" id="comparison-card">
+          <div class="comparison-text" id="comparison-text">
+            <span>เปรียบเทียบกับแผนก่อนหน้า:</span>
+            <span class="diff-badge" id="diff-places">+0 แห่ง</span>
+            <span class="diff-badge" id="diff-cost">฿0</span>
+            <span class="diff-badge" id="diff-time">0 น.</span>
+          </div>
+          <button type="button" class="btn-tool" id="btn-dismiss-diff" style="padding: 2px 8px; font-size: 11px;">ปิด</button>
+        </div>
+
+        <!-- Trip Overview Card -->
+        <section class="overview-card" id="overview-card">
+          <div class="overview-header">
+            <div class="overview-title">
+              <h3>ภาพรวมแผนการเดินทาง (Trip Overview)</h3>
+              <p>คำนวณและปรับตามเวลาจริง เริ่มต้นจากหอนาฬิกาเชียงราย (F)</p>
+            </div>
+            <div class="overview-right-tools">
+              <button type="button" class="btn-tool" id="btn-print-plan" title="พิมพ์หรือบันทึกเป็น PDF">
+                พิมพ์แผน
+              </button>
+              <button type="button" class="btn-tool" id="btn-copy-plan" title="คัดลอกตารางเดินทาง">
+                คัดลอก
+              </button>
+              <div class="smart-score-badge">
+                <div class="score-num" id="res-score">96</div>
+                <div class="score-lbl">Smart<br>Score</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Key Metrics Grid -->
+          <div class="metrics-grid">
+            <div class="metric-box">
+              <div class="metric-val" id="res-places-count">2 แห่ง</div>
+              <div class="metric-title">สถานที่ท่องเที่ยวที่แวะ</div>
+              <div class="metric-sub" id="res-places-sub">ตรงความสนใจ 100%</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-val" id="res-total-time">3 ชม. 5 น.</div>
+              <div class="metric-title">เวลารวมทั้งสิ้น</div>
+              <div class="metric-sub" id="res-end-time">สิ้นสุด 12:05 น.</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-val" id="res-travel-time">35 นาที</div>
+              <div class="metric-title">เวลาเดินทางตาม Matrix</div>
+              <div class="metric-sub" id="res-wait-time">เวลารอเปิด: 0 นาที</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-val" id="res-cost-person">฿250</div>
+              <div class="metric-title">ค่าใช้จ่ายต่อคน</div>
+              <div class="metric-sub" id="res-cost-group">รวมกลุ่ม: ฿500</div>
+            </div>
+          </div>
+
+          <!-- Budget Progress Meter -->
+          <div class="budget-meter">
+            <div class="meter-header">
+              <span>การใช้งบประมาณ: <strong id="res-budget-used-text">฿250 / ฿500</strong></span>
+              <span id="res-budget-remain-text">เหลืองบประมาณ: ฿250 ต่อคน</span>
+            </div>
+            <div class="meter-bar">
+              <div class="meter-fill" id="res-budget-fill" style="width: 50%;"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Itinerary Timeline -->
+        <section class="timeline-card" id="timeline-section">
+          <div class="section-head">
+            <h4>
+              <span>เส้นทางท่องเที่ยวและไทม์ไลน์ละเอียด</span>
+            </h4>
+            <span class="badge-tag" id="res-timeline-badge">เรียงตามเวลาเปิด-ปิดจริง</span>
+          </div>
+
+          <div class="timeline-list" id="timeline-container">
+            <!-- Timeline items injected by JavaScript -->
+          </div>
+        </section>
+
+        <!-- Explainable AI Panel -->
+        <section class="explain-card" id="explain-section">
+          <div class="section-head">
+            <h4>
+              <span>เหตุผลที่ระบบเลือกเส้นทางนี้</span>
+            </h4>
+          </div>
+          <div class="explain-grid" id="explain-container">
+            <!-- Explanation boxes injected by JavaScript -->
+          </div>
+        </section>
+
+        <!-- No Plan Found State (Hidden by default) -->
+        <section class="no-plan-card" id="no-plan-card" style="display: none;">
+          <div class="no-plan-badge" style="display:inline-block; padding: 4px 12px; background: #FDEDED; color: #D32F2F; border-radius: 9999px; font-weight: 700; margin-bottom: 10px;">แจ้งเตือน</div>
+          <h3 id="no-plan-title">ไม่พบเส้นทางที่ตรงตามเงื่อนไข</h3>
+          <p id="no-plan-reason">งบประมาณหรือระยะเวลาอาจไม่เพียงพอ</p>
+          <div class="suggestion-box" id="no-plan-suggestions">
+            <h5>คำแนะนำในการปรับเงื่อนไข:</h5>
+            <ul id="suggestions-list"></ul>
+          </div>
+        </section>
+
+      </main>
+
+    </div>
+  </section>
+
+  <!-- Smart Features Section -->
+  <section class="features-section" id="features">
+    <div class="container">
+      <div class="features-header">
+        <h3>จุดเด่นของระบบ</h3>
+        <p>สร้างขึ้นสำหรับการแข่งขัน AI-Assisted Coding Challenge 2026 เพื่อตอบโจทย์การท่องเที่ยวท้องถิ่นจริง</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-num" style="font-weight: 800; color: var(--primary); font-size: 18px; margin-bottom: 8px;">01</div>
+          <h4>Exhaustive Route Search</h4>
+          <p>ค้นหาเส้นทางแบบ Pruning จาก Travel Time Matrix ของผู้จัด เพื่อให้ได้จำนวนสถานที่และเวลาท่องเที่ยวที่คุ้มค่าที่สุด</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-num" style="font-weight: 800; color: var(--primary); font-size: 18px; margin-bottom: 8px;">02</div>
+          <h4>Weather Adaptation</h4>
+          <p>ระบบปรับเปลี่ยนเส้นทางทันทีเมื่อฝนตก โดยตัดสถานที่กลางแจ้ง (Outdoor) และสลับไปยังสถานที่ในร่ม (Indoor/Mixed) อัตโนมัติ</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-num" style="font-weight: 800; color: var(--primary); font-size: 18px; margin-bottom: 8px;">03</div>
+          <h4>Opening Hours & Waiting</h4>
+          <p>ตรวจสอบเวลาเปิด-ปิดของทุกสถานที่ คำนวณเวลารออย่างแม่นยำ ป้องกันการไปถึงสถานที่ก่อนเปิดหรือเที่ยวไม่ทันเวลาปิด</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-num" style="font-weight: 800; color: var(--primary); font-size: 18px; margin-bottom: 8px;">04</div>
+          <h4>Explainable Recommendation</h4>
+          <p>อธิบายเหตุผลอย่างตรงไปตรงมา แจกแจงความคุ้มค่า และวิเคราะห์ข้อจำกัดอย่างโปร่งใส</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dataset Reference Section -->
+  <section class="features-section" id="dataset-info" style="background: var(--bg);">
+    <div class="container">
+      <div class="features-header">
+        <h3>ฐานข้อมูลและแหล่งอ้างอิง</h3>
+        <p>อ่านข้อมูลจริงจาก Chiang_Rai_SmartTrip_Competition_Dataset.xlsx ทั้ง 3 Sheets</p>
+      </div>
+      <div class="explain-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="explain-box">
+          <h5>Sheet 1: Attractions</h5>
+          <p>สถานที่ท่องเที่ยว 10 แห่งในจังหวัดเชียงราย พร้อมข้อมูล ID, หมวดหมู่, ค่าเข้าชมจำลอง, เวลาเที่ยวชม, เวลาเปิด-ปิด และประเภทสภาพอากาศ</p>
+        </div>
+        <div class="explain-box">
+          <h5>Sheet 2: Travel_Time_Matrix</h5>
+          <p>ตารางเวลาเดินทางแบบสมมาตร 10x10 ระหว่างสถานที่ A ถึง J รวมทั้งสิ้น 100 คู่การเดินทาง โดยจุดเริ่มต้นหลักคือหอนาฬิกาเชียงราย (F)</p>
+        </div>
+        <div class="explain-box">
+          <h5>Sheet 3: Rules & Sources</h5>
+          <p>ข้อกำหนดการแข่งขัน: เดินทางด้วยรถส่วนตัวจำลอง, ฝนตกตัด Outdoor, งบประมาณต่อคน, อ้างอิง ททท. และกระทรวงการท่องเที่ยวและกีฬา</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <h4>Chiang Rai SmartTrip</h4>
+          <p>AI-Powered Local Tourism Planner • Competition Edition 2026</p>
+        </div>
+        <div>
+          <span class="badge-tag" style="background: rgba(255,255,255,0.1); color: #fff;">100% Offline Single Page Web App</span>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        สร้างขึ้นเพื่อการแข่งขัน AI-Assisted Coding Challenge 2026 ระดับมัธยมศึกษาตอนปลาย
+      </div>
+    </div>
+  </footer>
+
+  <!-- Modal for Dataset Inspection & Custom Upload -->
+  <div class="modal-overlay" id="dataset-modal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h4>ตรวจสอบฐานข้อมูลจริง (Dataset Inspector)</h4>
+        <button type="button" class="modal-close" id="btn-close-modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <strong>ตารางสถานที่ท่องเที่ยว (Attractions Sheet)</strong>
+          <span class="badge-tag">10 สถานที่</span>
+        </div>
+        <div style="overflow-x: auto; margin-bottom: 24px;">
+          <table class="dataset-table" id="modal-attractions-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>ชื่อสถานที่</th>
+                <th>หมวดหมู่</th>
+                <th>ค่าเข้าชม (฿)</th>
+                <th>เวลาเที่ยว (น.)</th>
+                <th>เวลาเปิด-ปิด</th>
+                <th>สภาพอากาศ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Injected by JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <strong>ตารางเวลาเดินทาง (Travel Time Matrix Sheet)</strong>
+          <span class="badge-tag">หน่วย: นาที</span>
+        </div>
+        <div style="overflow-x: auto; margin-bottom: 20px;">
+          <table class="dataset-table" id="modal-matrix-table">
+            <!-- Injected by JS -->
+          </table>
+        </div>
+
+        <!-- Custom Dataset Importer -->
+        <div class="presets-box" style="margin-top: 10px;">
+          <strong style="display: block; font-size: 13px; margin-bottom: 4px;">นำเข้าไฟล์ Dataset ใหม่ (Custom JSON Import):</strong>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
+            รองรับไฟล์ JSON เพื่อให้กรรมการทดสอบความยืดหยุ่นของระบบกับข้อมูลชุดอื่น
+          </p>
+          <input type="file" id="custom-dataset-input" accept=".json" style="font-size: 12px;">
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/validation.js"></script>
+  <script src="js/planner.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
